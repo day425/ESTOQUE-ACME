@@ -128,19 +128,21 @@ elif menu == "Consultar / Atualizar":
             with col1:
                 lista_ruas = ["RUA A", "RUA B", "RUA C", "RUA D", "RUA E"]
 
-# garante correspondência ignorando espaços extras
-rua_linha = linha["Rua"].strip().upper()
+                # Garante correspondência ignorando espaços
+                rua_linha = str(linha["Rua"]).strip().upper()
 
-# se a rua não existir ainda, seleciona a primeira
-index_rua = lista_ruas.index(rua_linha) if rua_linha in lista_ruas else 0
+                # Se a rua não existir, seleciona a primeira
+                index_rua = lista_ruas.index(rua_linha) if rua_linha in lista_ruas else 0
 
-rua = st.selectbox(
-    "Rua",
-    lista_ruas,
-    index=index_rua
-)
+                rua = st.selectbox(
+                    "Rua",
+                    lista_ruas,
+                    index=index_rua
+                )
+
             with col2:
                 nivel = st.text_input("Nível", linha["Nível"])
+
             with col3:
                 predio = st.text_input("Prédio", linha["Prédio"])
 
@@ -232,6 +234,7 @@ elif menu == "Dashboard":
     st.subheader("Top 10 Produtos com Maior Quantidade")
     top10 = df.sort_values(by="Qtde", ascending=False).head(10)
     st.dataframe(top10, use_container_width=True)
+
 
 
 
