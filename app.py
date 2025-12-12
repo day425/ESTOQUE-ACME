@@ -116,7 +116,6 @@ qtde = st.number_input("Quantidade", value=qtde_inicial, min_value=0)
 elif menu == "Consultar / Atualizar":
 
     st.subheader("Lista de produtos cadastrados")
-
     st.dataframe(df, use_container_width=True)
 
     st.subheader("Atualizar produto")
@@ -132,13 +131,17 @@ elif menu == "Consultar / Atualizar":
             linha = filtro.iloc[0]
 
             col1, col2, col3 = st.columns(3)
+
+            # ---------------------------
+            # COLUNA 1 - RUA
+            # ---------------------------
             with col1:
                 lista_ruas = ["RUA A", "RUA B", "RUA C", "RUA D", "RUA E"]
 
-                # Garante correspondência ignorando espaços
+                # trata valor da planilha
                 rua_linha = str(linha["Rua"]).strip().upper()
 
-                # Se a rua não existir, seleciona a primeira
+                # evita erro se a rua não existir
                 index_rua = lista_ruas.index(rua_linha) if rua_linha in lista_ruas else 0
 
                 rua = st.selectbox(
@@ -147,23 +150,44 @@ elif menu == "Consultar / Atualizar":
                     index=index_rua
                 )
 
+            # ---------------------------
+            # COLUNA 2 - NÍVEL
+            # ---------------------------
             with col2:
-                nivel = st.text_input("Nível", linha["Nível"])
+                nivel = st.text_input("Nível", str(linha["Nível"]))
 
+            # ---------------------------
+            # COLUNA 3 - PRÉDIO
+            # ---------------------------
             with col3:
-                predio = st.text_input("Prédio", linha["Prédio"])
+                predio = st.text_input("Prédio", str(linha["Prédio"]))
 
-            qtde = st.number_input("Quantidade", value=int(linha["Qtde"]))
-            categoria = st.text_input("Categoria", linha["Categoria"])
-            produto = st.text_input("Produto", linha["Produto"])
+            # ---------------------------
+            # CAMPOS ADICIONAIS
+            # ---------------------------
 
+            # Tratamento seguro da quantidade
+            try:
+                qtde_inicial = int(linha["Qtde"])
+            except:
+                qtde_inicial = 0
+
+            qtde = st.number_input("Quantidade", value=qtde_inicial, min_value=0)
+
+            categoria = st.text_input("Categoria", str(linha["Categoria"]))
+            produto = st.text_input("Produto", str(linha["Produto"]))
+
+            # ---------------------------
+            # BOTÃO SALVAR
+            # ---------------------------
             if st.button("Salvar Alterações"):
-                df.loc[df["Código"] == codigo_edit, ["Rua", "Nível", "Prédio", "Qtde", "Categoria", "Produto"]] = \
-                    [rua, nivel, predio, qtde, categoria, produto]
+                df.loc[
+                    df["Código"] == codigo_edit,
+                    ["Rua", "Nível", "Prédio", "Qtde", "Categoria", "Produto"]
+                ] = [rua, nivel, predio, qtde, categoria, produto]
 
                 salvar_base(df)
                 st.success("Produto atualizado com sucesso!")
-
 
 # ============================================================
 # 3) IMPORTAR DADOS (Excel ou CSV)
@@ -241,6 +265,7 @@ elif menu == "Dashboard":
     st.subheader("Top 10 Produtos com Maior Quantidade")
     top10 = df.sort_values(by="Qtde", ascending=False).head(10)
     st.dataframe(top10, use_container_width=True)
+
 
 
 
