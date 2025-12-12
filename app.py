@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Dec 12 15:50:25 2025
-
-@author: djoao
-"""
 
 import streamlit as st
 import pandas as pd
@@ -20,7 +15,6 @@ def carregar_base():
     if os.path.exists(ARQUIVO_BASE):
         return pd.read_excel(ARQUIVO_BASE)
     else:
-        # Criar base vazia caso não exista
         colunas = ["Rua", "Nível", "Prédio", "Qtde", "Categoria", "Código", "Produto"]
         df = pd.DataFrame(columns=colunas)
         df.to_excel(ARQUIVO_BASE, index=False)
@@ -51,10 +45,6 @@ def ler_arquivo(uploaded_file):
 st.set_page_config(page_title="ESTOQUE - ACME", layout="wide")
 st.title("📦 ESTOQUE - ACME")
 
-
-# ------------------------------------------------------------
-# MENU LATERAL
-# ------------------------------------------------------------
 menu = st.sidebar.radio(
     "Menu",
     ["Dashboard", "Cadastrar Produto", "Consultar / Atualizar", "Importar Dados", "Exportar Dados"]
@@ -64,27 +54,21 @@ df = carregar_base()
 
 
 # ============================================================
-# 1) CADASTRO MANUAL DE PRODUTOS
+# 1) CADASTRAR PRODUTO
 # ============================================================
 if menu == "Cadastrar Produto":
+
     st.subheader("Cadastrar novo produto")
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        rua = st.selectbox("Rua", ["RUA A", "RUA B", "RUA C", "RUA D","RUA E"])
+        rua = st.selectbox("Rua", ["RUA A", "RUA B", "RUA C", "RUA D", "RUA E"])
     with col2:
         nivel = st.text_input("Nível")
     with col3:
         predio = st.text_input("Prédio")
 
-    # trata quantidades vazias, texto ou NaN
-try:
-    qtde_inicial = int(linha["Qtde"])
-except:
-    qtde_inicial = 0
-
-qtde = st.number_input("Quantidade", value=qtde_inicial, min_value=0)
-
+    qtde = st.number_input("Quantidade", min_value=0)
     categoria = st.text_input("Categoria")
     codigo = st.text_input("Código (SKU)")
     produto = st.text_input("Nome do Produto")
@@ -111,7 +95,7 @@ qtde = st.number_input("Quantidade", value=qtde_inicial, min_value=0)
 
 
 # ============================================================
-# 2) CONSULTAR E ATUALIZAR PRODUTOS
+# 2) CONSULTAR / ATUALIZAR
 # ============================================================
 elif menu == "Consultar / Atualizar":
 
@@ -132,39 +116,19 @@ elif menu == "Consultar / Atualizar":
 
             col1, col2, col3 = st.columns(3)
 
-            # ---------------------------
-            # COLUNA 1 - RUA
-            # ---------------------------
             with col1:
                 lista_ruas = ["RUA A", "RUA B", "RUA C", "RUA D", "RUA E"]
 
-                # trata valor da planilha
                 rua_linha = str(linha["Rua"]).strip().upper()
-
-                # evita erro se a rua não existir
                 index_rua = lista_ruas.index(rua_linha) if rua_linha in lista_ruas else 0
 
-                rua = st.selectbox(
-                    "Rua",
-                    lista_ruas,
-                    index=index_rua
-                )
+                rua = st.selectbox("Rua", lista_ruas, index=index_rua)
 
-            # ---------------------------
-            # COLUNA 2 - NÍVEL
-            # ---------------------------
             with col2:
                 nivel = st.text_input("Nível", str(linha["Nível"]))
 
-            # ---------------------------
-            # COLUNA 3 - PRÉDIO
-            # ---------------------------
             with col3:
                 predio = st.text_input("Prédio", str(linha["Prédio"]))
-
-            # ---------------------------
-            # CAMPOS ADICIONAIS
-            # ---------------------------
 
             # Tratamento seguro da quantidade
             try:
@@ -173,13 +137,9 @@ elif menu == "Consultar / Atualizar":
                 qtde_inicial = 0
 
             qtde = st.number_input("Quantidade", value=qtde_inicial, min_value=0)
-
             categoria = st.text_input("Categoria", str(linha["Categoria"]))
             produto = st.text_input("Produto", str(linha["Produto"]))
 
-            # ---------------------------
-            # BOTÃO SALVAR
-            # ---------------------------
             if st.button("Salvar Alterações"):
                 df.loc[
                     df["Código"] == codigo_edit,
@@ -189,10 +149,12 @@ elif menu == "Consultar / Atualizar":
                 salvar_base(df)
                 st.success("Produto atualizado com sucesso!")
 
+
 # ============================================================
 # 3) IMPORTAR DADOS (Excel ou CSV)
 # ============================================================
 elif menu == "Importar Dados":
+
     st.subheader("Importar base")
 
     uploaded = st.file_uploader("Envie arquivo Excel ou CSV", type=["xlsx", "xlsm", "xls", "csv"])
@@ -204,9 +166,8 @@ elif menu == "Importar Dados":
         st.dataframe(df_import)
 
         if st.button("Importar para o sistema"):
-            df_final = pd.concat([df, df_import], ignore_index=True)
 
-            # Remover duplicações pelo SKU (Código)
+            df_final = pd.concat([df, df_import], ignore_index=True)
             df_final = df_final.drop_duplicates(subset=["Código"], keep="last")
 
             salvar_base(df_final)
@@ -218,9 +179,10 @@ elif menu == "Importar Dados":
 # 4) EXPORTAR DADOS
 # ============================================================
 elif menu == "Exportar Dados":
+
     st.subheader("Download da base de estoque")
 
-    df_xlsx = df.to_excel("estoque_exportado.xlsx", index=False)
+    df.to_excel("estoque_exportado.xlsx", index=False)
 
     with open("estoque_exportado.xlsx", "rb") as f:
         st.download_button(
@@ -229,45 +191,37 @@ elif menu == "Exportar Dados":
             file_name="estoque_exportado.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
+
 # ============================================================
 # 5) DASHBOARD
 # ============================================================
 elif menu == "Dashboard":
+
     st.subheader("📊 Dashboard de Estoque - ACME")
 
-    # Indicadores principais
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric("Total de SKUs", len(df))
     with col2:
         st.metric("Total de Itens no Estoque", int(df["Qtde"].sum()))
     with col3:
-        categorias_unicas = df["Categoria"].nunique()
-        st.metric("Categorias Cadastradas", categorias_unicas)
+        st.metric("Categorias Cadastradas", df["Categoria"].nunique())
 
     st.divider()
 
-    # Quantidade por Rua
     st.subheader("Distribuição por Rua")
     qtd_rua = df.groupby("Rua")["Qtde"].sum().sort_values(ascending=False)
     st.bar_chart(qtd_rua)
 
     st.divider()
 
-    # Quantidade por Categoria
     st.subheader("Quantidade por Categoria")
     qtd_cat = df.groupby("Categoria")["Qtde"].sum().sort_values(ascending=False)
     st.bar_chart(qtd_cat)
 
     st.divider()
 
-    # Top 10 produtos por quantidade
     st.subheader("Top 10 Produtos com Maior Quantidade")
     top10 = df.sort_values(by="Qtde", ascending=False).head(10)
     st.dataframe(top10, use_container_width=True)
-
-
-
-
-
-
