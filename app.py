@@ -77,7 +77,14 @@ if menu == "Cadastrar Produto":
     with col3:
         predio = st.text_input("Prédio")
 
-    qtde = st.number_input("Quantidade", min_value=0)
+    # trata quantidades vazias, texto ou NaN
+try:
+    qtde_inicial = int(linha["Qtde"])
+except:
+    qtde_inicial = 0
+
+qtde = st.number_input("Quantidade", value=qtde_inicial, min_value=0)
+
     categoria = st.text_input("Categoria")
     codigo = st.text_input("Código (SKU)")
     produto = st.text_input("Nome do Produto")
@@ -234,6 +241,7 @@ elif menu == "Dashboard":
     st.subheader("Top 10 Produtos com Maior Quantidade")
     top10 = df.sort_values(by="Qtde", ascending=False).head(10)
     st.dataframe(top10, use_container_width=True)
+
 
 
 
