@@ -16,5 +16,3 @@ Aplicação em **Streamlit** para controle de estoque com:
 ### 1) Instale os requisitos
 ```bash
 pip install -r requirements.txt
-
-streamlit run estoque_app.py
