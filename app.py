@@ -126,7 +126,7 @@ elif menu == "Consultar / Atualizar":
 
             col1, col2, col3 = st.columns(3)
             with col1:
-                rua = st.selectbox("Rua", ["RUA A", "RUA B", "RUA C", "RUA D"], index=["RUA A", "RUA B", "RUA C", "RUA D"].index(linha["Rua"]))
+                rua = st.selectbox("Rua", ["RUA A", "RUA B", "RUA C", "RUA D","RUA E"], index=["RUA A", "RUA B", "RUA C", "RUA D","RUA E"].index(linha["Rua"]))
             with col2:
                 nivel = st.text_input("Nível", linha["Nível"])
             with col3:
@@ -220,4 +220,5 @@ elif menu == "Dashboard":
     st.subheader("Top 10 Produtos com Maior Quantidade")
     top10 = df.sort_values(by="Qtde", ascending=False).head(10)
     st.dataframe(top10, use_container_width=True)
+
 
